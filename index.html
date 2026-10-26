@@ -1,73 +1,473 @@
-<!doctype html> <html lang="es"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <meta name="theme-color" content="#0b0812" /> <meta name="description" content="Noctrarium - Portal Noctra" /> <title>Noctrarium</title> <style> /* Estilos básicos para una vista limpia y adaptable */ :root{ --bg: #0b0812; --card: #181027; --muted: #9f8aa0; --accent: #6f4bd8; --text: #e9e0f7; } *{box-sizing:border-box} html,body{margin:0;height:100%} body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text);} a{color:inherit;text-decoration:none} .glow{position:fixed;filter:blur(20px);opacity:.6;pointer-events:none} .glow1{ width:400px;height:400px;background:radial-gradient(circle at 30% 30%, #8a5fff55, transparent 40%), radial-gradient(circle at 70% 70%, #2dd4bf55, transparent 40%); top:-50px; left:-50px} .glow2{ width:500px;height:500px;background:radial-gradient(circle at 60% 60%, #ff6b6b55, transparent 40%), radial-gradient(circle at 20% 80%, #ffd16655, transparent 40%); bottom:-120px; right:-120px} .sidebar{position:fixed; top:0; left:0; width:260px; height:100%; background:#130c1a; padding:20px; overflow:auto; border-right:1px solid #2b1d38} .brand{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:16px} .brand .sigil{width:28px;height:28px;border-radius:50%;background:#6f4bd8;color:white;display:inline-flex;align-items:center;justify-content:center} .network{font-size:12px;color:#aaa;margin-bottom:12px} nav button{width:100%;padding:10px;border:0;background:transparent;color:#e9e0f7;text-align:left;border-radius:6px;margin:6px 0;cursor:pointer} nav button.active{background:#2a1748} .sidebottom{position:absolute;bottom:12px;width:100%} .security{font-size:12px;color:#c9b4d8;margin-bottom:6px} .version{font-size:12px;color:#888} .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none} main{margin-left:260px;padding:20px} header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #2b1d38} .crumb{font-weight:600} .topright{display:flex;gap:12px;align-items:center} .connect{background:#2b1d38;border:0;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer} .notice{padding:10px;margin:10px 0;border-radius:6px} .hidden{display:none} .page{display:block} .page.hidden{display:none} .pagetitle{margin:8px 0 12px} .panel{background:var(--card);border-radius:12px;padding:16px;margin:12px 0;position:relative} .tokenlayout{display:flex;gap:12px;flex-wrap:wrap} .tokenmark{width:60px;height:60px;border-radius:12px;background:#2b1d38;display:flex;align-items:center;justify-content:center;font-size:28px} .fieldlabel{font-size:12px;color:#9aa0a6;display:block;margin:6px 0} .address{display:flex;gap:8px;align-items:center} code{font-family:monospace;background:#0b0b12;padding:6px 10px;border-radius:6px} .outlink{color:#9bd;font-size:14px} .balance{font-size:28px;font-weight:700} .muted{color:var(--muted)} .primary{background:#6f4bd8;border:0;color:white;padding:12px 16px;border-radius:6px;cursor:pointer} .secondary{background:#2b1d38;border:0;color:white;padding:12px 16px;border-radius:6px;cursor:pointer} .nftgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px} .nftCard{background:#1a1130;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.3)} .nftCard img{width:100%;height:120px;object-fit:cover;display:block} .nftInfo{padding:8px;font-size:14px} footer{margin-top:20px;color:#888;font-size:12px;text-align:center} </style> <!-- WalletConnect y ethers (solo para estructura; no se solicita conexión real) --> <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@3/dist/index.umd.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js"></script> </head> <body> <div class="glow glow1"></div> <div class="glow glow2"></div> <aside class="sidebar" id="sidebar"> <a class="brand" href="#" data-page="home"><span class="sigil">N</span><span><b>NOCTRARIUM</b><small>THE NOCTRA NETWORK</small></span></a> <div class="network"><i></i> BASE NETWORK</div> <label class="navlabel">PLATAFORMA</label> <nav> <button class="nav active" data-page="home">⌂ <span>Inicio</span></button> <button class="nav" data-page="token">◈ <span>Token Noctra</span></button> <button class="nav" data-page="swap">⇄ <span>Swap</span></button> <button class="nav" data-page="nfts">◇ <span>Colección NFT</span></button> <button class="nav" data-page="arcade">✧ <span>Arcade demo</span></button> </nav> <div class="sidebottom"> <div class="security">♧ <span><b>Tu wallet, tu control</b><small>Nunca compartas tu frase semilla.</small></span></div> <a href="https://basescan.org/" target="_blank" rel="noreferrer">Explorador de Base ↗</a> <small class="version">NOCTRARIUM · BETA 0.2</small> </div> </aside> <button class="scrim" id="scrim" aria-label="Cerrar menú"></button> <main> <header> <button id="menu" class="menu" aria-label="Abrir menú">☰</button> <div class="breadcrumbcrumb">NOCTRARIUM <span>›</span> <b id="crumb">INICIO</b></div> <div class="topright"> <span class="chain"><i></i> Base</span> <button id="connect" class="connect">♧ Conectar wallet</button> </div> </header> <div id="notice" class="notice hidden"></div>
-<!-- PÁGINAS -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0812">
+<meta name="description" content="Noctrarium — portal del ecosistema Noctra">
+<title>Noctrarium</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{font-family:Inter,system-ui,sans-serif;color:#eee9f5;background:#0b0812;--muted:#968ba5;--purple:#b38af5;--gold:#d8bd87;--line:#2d2238}
+*{box-sizing:border-box}
+body{margin:0;min-width:320px;background:#0b0812}
+button,a{font:inherit}
+button{color:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+.glow{position:fixed;z-index:-1;width:430px;height:430px;filter:blur(125px);opacity:.1;border-radius:50%;pointer-events:none}
+.glow1{background:#7944c8;top:-180px;left:25%}
+.glow2{background:#b78b48;right:-240px;bottom:-140px}
+aside.sidebar{position:fixed;inset:0 auto 0 0;width:245px;padding:28px 18px 20px;background:#0d0914;border-right:1px solid #261c30;display:flex;flex-direction:column;z-index:10}
+.brand{display:flex;gap:12px;align-items:center;padding:0 8px}
+.sigil{width:42px;height:42px;border:1px solid #665036;display:grid;place-items:center;color:#e1c68b;font:25px Cinzel,serif;background:#1a1222;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%)}
+.brand b{display:block;font:600 14px Cinzel,serif;letter-spacing:1.2px}
+.brand small{display:block;font-size:8px;letter-spacing:1.6px;color:#81748d;margin-top:5px}
+.network{margin:36px 3px 34px;padding:11px;border:1px solid #2e233a;border-radius:4px;font-size:9px;letter-spacing:1.4px;color:#c9b7e1}
+.network i,.status i,.chain i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8fdfb3;margin-right:8px;box-shadow:0 0 9px #8fdfb344}
+.navlabel,label{font-size:9px;letter-spacing:1.7px;color:var(--gold)}
+.navlabel{padding:0 12px;margin-bottom:14px;color:#71657e}
+.sidebar nav{display:grid;gap:6px}
+.nav{border:1px solid transparent;background:none;color:#9d91aa;text-align:left;border-radius:4px;padding:13px 12px;display:flex;align-items:center;gap:13px;font-size:13px}
+.nav span{font-size:11px}
+.nav.active{border-color:#3c2c50;background:linear-gradient(90deg,#291d3a,#17111f);color:#e7d9fa;box-shadow:inset 2px 0 #ae83ef}
+.sidebottom{margin-top:auto}
+.security{display:flex;gap:10px;padding:13px;border:1px solid #2c2336;background:#130f1a;color:var(--gold);font-size:15px}
+.security b,.security small{display:block}
+.security b{font-size:10px;color:#e6dced;margin-bottom:5px}
+.security small{font-size:9px;color:#897e96}
+.sidebottom>a{display:block;margin:20px 7px;color:#a095b0;font-size:10px}
+.version{display:block;border-top:1px solid #261c30;padding:17px 7px 0;color:#675b73;font-size:8px;letter-spacing:1.2px}
+main{margin-left:245px;padding:0 40px;max-width:1600px}
+header{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #261c30;gap:15px}
+.crumb{font-size:9px;letter-spacing:1.4px;color:#776c84}
+.crumb span{padding:0 9px}
+.crumb b{color:#cbbbdc;font-weight:500}
+.topright{display:flex;align-items:center;gap:18px}
+.chain{font-size:11px;color:#b0a4bc;white-space:nowrap}
+.connect,.primary,.secondary,.outlink{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:4px;padding:11px 14px;font-size:11px;font-weight:600}
+.connect{border:1px solid #59406e;background:#21172e;color:#eadcff}
+.connect.connected{border-color:#42674f;color:#c3f4d0}
+.menu{display:none}
+.page{padding-top:28px}
+.hero{position:relative;overflow:hidden;min-height:380px;padding:40px 42px 0;border:1px solid #3a2b49;background:radial-gradient(ellipse at 75% 45%,#2c1c40,#171020 42%,#100c17 78%)}
+.hero:before{content:"";position:absolute;inset:0;opacity:.15;background-image:linear-gradient(#78618c22 1px,transparent 1px),linear-gradient(90deg,#78618c22 1px,transparent 1px);background-size:37px 37px}
+.herocopy{position:relative;z-index:2;max-width:440px}
+.herocopy>label{font-weight:600}
+.hero h1,.pagetitle h1{font:500 clamp(38px,4.4vw,59px)/1.1 Cinzel,serif;letter-spacing:-1px;margin:20px 0 15px}
+.hero h1 em,.pagetitle h1 em{font-style:normal;color:#b99af0}
+.hero p{max-width:380px;color:#a79bb3;font-size:12px;line-height:1.9}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.primary{border:1px solid #a17bd8;background:linear-gradient(135deg,#a27be1,#7850b5);color:#fff}
+.secondary{border:1px solid #463650;background:#181220;color:#d8cce6}
+.status{display:flex;align-items:center;gap:12px;margin-top:28px;color:#90839e;font-size:8px;letter-spacing:1.3px}
+.status span{display:flex;align-items:center}
+.status b{color:#65576f}
+.rune-art{position:absolute;right:7%;top:50%;transform:translateY(-55%);width:290px;height:290px;display:grid;place-items:center;color:#c8a4ff;opacity:.8}
+.orbit{position:absolute;border:1px solid #a77bdd44;border-radius:50%;inset:10px}
+.orbit2{inset:38px;border-style:dashed;animation:spin 70s linear infinite}
+.rune{width:150px;height:150px;border:1px solid #8e67b8;display:grid;place-items:center;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);font:90px Cinzel,serif;color:#e5d2ff;text-shadow:0 0 25px #b27fff88;filter:drop-shadow(0 0 30px #9e68d84a)}
+.star{position:absolute;color:var(--gold);font-size:22px}
+.s1{top:25px;right:40px}
+.s2{bottom:30px;left:40px}
+.heroftr{position:absolute;bottom:0;left:0;right:0;border-top:1px solid #3a2b49;padding:14px 20px;display:flex;justify-content:space-between;color:#776a85;font-size:8px;letter-spacing:1.5px}
+.sectionhead{display:flex;align-items:end;justify-content:space-between;margin:36px 0 17px}
+.sectionhead h2{font:500 23px Cinzel,serif;margin:7px 0 0}
+.sectionhead>small{font-size:8px;letter-spacing:1.3px;color:#746981}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.feature,.panel{border:1px solid #2d2238;border-radius:5px;background:linear-gradient(145deg,#171120,#100d16)}
+.feature{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:19px;min-height:202px;transition:.2s}
+.feature:hover{border-color:#63467f;transform:translateY(-2px)}
+.ico{width:40px;height:40px;display:grid;place-items:center;border-radius:5px;margin-bottom:17px;font-size:22px}
+.purple{color:#c7a7ff;background:#38264d}
+.gold{color:#e3c98e;background:#3b3020}
+.blue{color:#a8c8ff;background:#202b42}
+.feature>small{font-size:8px;letter-spacing:1.5px;color:#83758f}
+.feature h3{font:500 15px Cinzel,serif;margin:8px 0 0}
+.feature p{font-size:10px;line-height:1.8;color:#958aa3;margin:10px 0 16px}
+.feature>b{font-size:10px;color:#c5a5fa;margin-top:auto}
+.strip{display:flex;align-items:center;gap:16px;margin-top:13px;padding:18px;border:1px solid #2d2238;border-radius:5px;background:#120e19}
+.stripico{font-size:26px;color:var(--gold)}
+.strip>b{display:block;font:500 14px Cinzel,serif;letter-spacing:.5px}
+.strip p{margin:6px 0 0;font-size:10px;line-height:1.7;color:#958aa3}
+.strip a{margin-left:auto;white-space:nowrap;font-size:10px;font-weight:600;color:#c5a5fa;border:1px solid #463650;background:#181220;border-radius:4px;padding:9px 13px}
+.pagetitle{margin:26px 0 20px}
+.pagetitle p{color:#a79bb3;font-size:12px;line-height:1.8;max-width:520px;margin:8px 0 0}
+.tokenlayout{display:grid;grid-template-columns:1.1fr 1fr;gap:13px;align-items:start}
+.panel{padding:22px}
+.panel label{display:block;font-size:9px;letter-spacing:1.7px;color:var(--gold);margin-bottom:8px}
+.panel h2,.panel h3{font:500 20px Cinzel,serif;margin:4px 0 6px}
+.tokenmark{width:56px;height:56px;border:1px solid #665036;display:grid;place-items:center;color:#e1c68b;font:32px Cinzel,serif;background:#1a1222;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);margin-bottom:16px}
+.muted{color:#8a7f97;font-size:10px;line-height:1.8;margin:0 0 16px}
+.fieldlabel{margin-top:18px}
+.address{display:flex;align-items:center;gap:10px;border:1px solid #2e233a;background:#0f0b16;border-radius:4px;padding:12px 14px}
+.address code{font-size:11px;letter-spacing:.4px;color:#d7c9ec;word-break:break-all}
+.address button{border:none;background:none;color:#a08fc4;font-size:15px;padding:0 2px}
+.outlink{display:inline-flex;margin-top:16px;border:1px solid #463650;background:#181220;color:#d8cce6}
+.balance{display:flex;align-items:baseline;gap:8px;margin:6px 0 10px}
+.balance span{font:500 34px Cinzel,serif;color:#e9dcff}
+.balance small{font-size:9px;letter-spacing:1.4px;color:var(--muted)}
+.panel .primary,.panel .secondary{margin-top:12px;width:100%}
+.warning{display:flex;gap:10px;margin-top:13px;padding:15px 18px;border:1px solid #4a3a22;border-radius:5px;background:#161019;color:var(--gold);font-size:10px;line-height:1.7}
+.warning span{color:#bfae8d}
+.warning b{color:var(--gold)}
+.panel.coming{padding:40px 32px;text-align:center;align-items:center;justify-content:center;display:flex;flex-direction:column;gap:6px}
+.panel.coming h2{margin:10px 0 4px}
+.panel.coming p{max-width:480px;color:#958aa3;font-size:11px;line-height:1.9;margin:0 0 16px}
+.tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tags span{font-size:8px;letter-spacing:1.4px;color:#a08fc4;border:1px solid #3c2f4a;border-radius:3px;padding:6px 10px;background:#150f1d}
+.panel.nft{display:flex;gap:22px;align-items:center;padding:30px}
+.nftart{width:130px;height:130px;flex:none;border:1px solid #3c2f4a;border-radius:5px;display:grid;place-content:center;text-align:center;font-size:44px;color:#c7a7ff;background:radial-gradient(ellipse at 50% 40%,#2c1c40,#120d1a)}
+.nftart small{font-size:8px;letter-spacing:2px;color:#8a7f97;margin-top:10px}
+.arcadelayout{display:grid;grid-template-columns:1.7fr 1fr;gap:13px;align-items:start}
+.arcadetop{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.points{text-align:right}
+.points small{display:block;font-size:8px;letter-spacing:1.4px;color:var(--muted)}
+.points b{font:500 26px Cinzel,serif;color:#e9dcff}
+.runes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}
+.runeTile{border:1px solid #2e233a;background:#140f1d;border-radius:5px;padding:16px 6px 12px;display:grid;place-items:center;gap:8px;font-size:22px;color:#a793cc;transition:.15s}
+.runeTile span{font-size:10px;letter-spacing:1.4px;color:#7c6f8b}
+.runeTile:hover{border-color:#63467f}
+.runeTile.selected{border-color:#ae83ef;background:linear-gradient(145deg,#2c1c40,#1a1226);color:#cbb2ff;box-shadow:0 0 14px #7c4fd133}
+.arcadebottom{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.arcadebottom span{font-size:10px;letter-spacing:1.3px;color:var(--muted)}
+.result{margin:16px 0 4px;padding:12px 14px;border:1px solid #3c2f4a;border-radius:4px;background:#150f1d;font-size:11px;line-height:1.7;color:#d8cce6}
+.textbutton{border:none;background:none;color:#a08fc4;font-size:10px;letter-spacing:1.2px;margin-top:10px;padding:6px 0}
+.textbutton:hover{color:#c5a5fa}
+.panel.rules h3{font:500 15px Cinzel,serif;margin:12px 0 8px}
+.panel.rules p{font-size:10px;line-height:1.8;color:#958aa3;margin:0 0 12px}
+.panel.rules ul{margin:0;padding-left:18px;font-size:10px;line-height:2;color:#8a7f97}
+.notice{margin-top:14px;padding:12px 16px;border:1px solid #5c4630;border-radius:4px;background:#1a1210;color:#e8c9a0;font-size:11px;line-height:1.6}
+footer{display:flex;align-items:center;gap:18px;justify-content:space-between;flex-wrap:wrap;margin-top:40px;padding:20px 0 26px;border-top:1px solid #261c30;font-size:8px;letter-spacing:1.4px;color:#675b73}
+footer a{color:#a08fc4}
+.scrim{display:none;position:fixed;inset:0;z-index:9;border:none;background:#000a}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:900px){
+main{margin-left:0;padding:0 16px}
+.menu{display:grid;place-items:center;width:42px;height:42px;border:1px solid #463650;border-radius:4px;background:#181220;color:#d8cce6;font-size:16px}
+aside.sidebar{transform:translateX(-100%);transition:transform .25s}
+aside.sidebar.open{transform:none}
+.scrim.open{display:block}
+.crumb{display:none}
+.cards,.tokenlayout,.arcadelayout{grid-template-columns:1fr}
+.hero{padding:28px 20px 0;min-height:0}
+.rune-art{display:none}
+.panel.nft{flex-direction:column;text-align:center}
+header{height:auto;min-height:66px;flex-wrap:wrap;padding:10px 0}
+.topright{gap:10px}
+footer{gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="glow glow1"></div><div class="glow glow2"></div>
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="#" data-page="home"><span class="sigil">N</span><span><b>NOCTRARIUM</b><small>THE NOCTRA NETWORK</small></span></a>
+<div class="network"><i></i> BASE NETWORK</div>
+<label class="navlabel">PLATAFORMA</label>
+<nav>
+<button class="nav active" data-page="home">⌂ <span>Inicio</span></button>
+<button class="nav" data-page="token">◈ <span>Token Noctra</span></button>
+<button class="nav" data-page="swap">⇄ <span>Swap</span></button>
+<button class="nav" data-page="nfts">◇ <span>Colección NFT</span></button>
+<button class="nav" data-page="arcade">✧ <span>Arcade demo</span></button>
+</nav>
+<div class="sidebottom">
+<div class="security">♧ <span><b>Tu wallet, tu control</b><small>Nunca compartas tu frase semilla.</small></span></div>
+<a href="https://basescan.org/" target="_blank" rel="noreferrer">Explorador de Base ↗</a>
+<small class="version">NOCTRARIUM · BETA 0.1</small>
+</div>
+</aside>
+<button class="scrim" id="scrim" aria-label="Cerrar menú"></button>
+<main>
+<header>
+<button id="menu" class="menu" aria-label="Abrir menú" aria-expanded="false">☰</button>
+<div class="crumb">NOCTRARIUM <span>›</span> <b id="crumb">INICIO</b></div>
+<div class="topright"><span class="chain"><i></i> Base</span><button id="connect" class="connect">♧ Conectar wallet</button></div>
+</header>
+<div id="notice" class="notice hidden" role="status"></div>
+
 <section class="page" id="page-home">
-  <div class="pagetitle">
-    <label>HERO</label>
-    <h1>Bienvenido a Noctrarium</h1>
-    <p>Portal de Noctra en la red Base. Explora token, swaps y colecciones.</p>
-  </div>
-  <section class="panel">
-    <h3>Resumen</h3>
-    <p class="muted">Este módulo es un ejemplo desplegable de una dApp minimalista con las secciones principales: Token Noctra, Swap y NFT.</p>
-  </section>
+<div class="hero">
+<div class="herocopy">
+<label>✦ &nbsp; PORTAL WEB3 · BASE</label>
+<h1>Enter the<br><em>Noctra realm.</em></h1>
+<p>Un portal hacia el ecosistema Noctra. Conecta tu wallet, consulta tu token y explora las funciones disponibles.</p>
+<div class="actions"><button class="primary" id="heroConnect">♧ Conectar wallet ↗</button><button class="secondary" data-page="token">Explorar token ›</button></div>
+<div class="status"><span><i></i> RED ACTIVA</span><b>·</b><span>BASE · EVM</span></div>
+</div>
+<div class="rune-art" aria-hidden="true"><div class="orbit orbit1"></div><div class="orbit orbit2"></div><div class="rune">N</div><span class="star s1">✦</span><span class="star s2">✧</span></div>
+<div class="heroftr"><span>01 / THE GATEWAY</span><span>NOCTRA ECOSYSTEM</span></div>
+</div>
+<div class="sectionhead"><div><label>OVERVIEW</label><h2>Tu portal</h2></div><small>UN ECOSISTEMA EN CONSTRUCCIÓN</small></div>
+<div class="cards">
+<button class="feature" data-page="token"><span class="ico purple">◈</span><small>ASSET · BASE</small><h3>Token Noctra</h3><p>Consulta el contrato configurado y tu saldo al conectar una wallet.</p><b>Ver token ↗</b></button>
+<button class="feature" data-page="swap"><span class="ico gold">⇄</span><small>EXCHANGE</small><h3>Swap</h3><p>Interfaz preparada para una futura integración de intercambio.</p><b>Explorar ↗</b></button>
+<button class="feature" data-page="nfts"><span class="ico blue">◇</span><small>COLLECTIBLES</small><h3>Colección NFT</h3><p>Espacio para mostrar colecciones y contratos verificados.</p><b>Ver colección ↗</b></button>
+</div>
+<div class="strip"><span class="stripico">◎</span><div><b>Construido para el ecosistema Base</b><p>Las consultas de saldo son de solo lectura. Esta versión no envía transacciones.</p></div><a href="https://base.org/" target="_blank" rel="noreferrer">Conocer Base ↗</a></div>
 </section>
 
 <section class="page hidden" id="page-token">
-  <div class="pagetitle"><label>ASSET OVERVIEW</label><h1>Token <em>Noctra</em></h1><p>Datos del token configurado en la red Base.</p></div>
-  <div class="tokenlayout">
-    <div class="panel">
-      <div class="tokenmark">N</div>
-      <label>TOKEN ERC-20</label>
-      <h2>NOCTRA</h2>
-      <p class="muted">Noctra ecosystem token</p>
-      <label class="fieldlabel">CONTRATO</label>
-      <div class="address">
-        <code id="contract">0xD7C0Fe9D359cd2c40F7285A8b302ED416e99F6f1</code>
-        <button id="copy" aria-label="Copiar contrato">▣</button>
-      </div>
-      <a class="outlink" id="tokenlink" target="_blank" rel="noreferrer">Ver en BaseScan ↗</a>
-    </div>
-    <div class="panel">
-      <label>MI WALLET</label>
-      <h3>Saldo de NOCTRA</h3>
-      <div class="balance"><span id="balance">-</span> <small>NOCTRA</small></div>
-      <p class="muted" id="balancehint">Conecta tu wallet para consultar el saldo público.</p>
-      <button class="primary" id="tokenConnect">♧ Conectar wallet</button>
-      <button class="secondary hidden" id="switchBase">Cambiar a Base</button>
-    </div>
-  </div>
-  <div class="warning">♧ &nbsp; <span><b>Importante:</b> verifica siempre el contrato en fuentes oficiales.</span></div>
+<div class="pagetitle"><label>ASSET OVERVIEW</label><h1>Token <em>Noctra</em></h1><p>Datos del token configurado en la red Base.</p></div>
+<div class="tokenlayout">
+<div class="panel">
+<div class="tokenmark">N</div>
+<label>TOKEN ERC-20</label>
+<h2>NOCTRA</h2>
+<p class="muted">Noctra ecosystem token</p>
+<label class="fieldlabel">CONTRATO</label>
+<div class="address"><code id="contract"></code><button id="copy" aria-label="Copiar contrato">▣</button></div>
+<a class="outlink" id="tokenlink" target="_blank" rel="noreferrer">Ver en BaseScan ↗</a>
+</div>
+<div class="panel">
+<label>MI WALLET</label>
+<h3>Saldo de NOCTRA</h3>
+<div class="balance"><span id="balance">—</span> <small>NOCTRA</small></div>
+<p class="muted" id="balancehint">Conecta tu wallet para consultar el saldo público.</p>
+<button class="primary" id="tokenConnect">♧ Conectar wallet</button>
+<button class="secondary hidden" id="switchBase">Cambiar a Base</button>
+</div>
+</div>
+<div class="warning">♧ &nbsp; <span><b>Importante:</b> comprueba siempre el contrato en fuentes oficiales antes de interactuar con cualquier token. Esta página solo muestra la dirección configurada y un saldo de lectura.</span></div>
 </section>
 
 <section class="page hidden" id="page-swap">
-  <div class="pagetitle"><label>SWAP MODULE</label><h1>Intercambio Noctra</h1><p>Ahora en vivo con Uniswap V2-style.</p></div>
-  <div class="panel">
-    <label class="fieldlabel">DE</label>
-    <input id="inputToken" value="NOCTRA" readonly style="font-size:28px">
-    <label class="fieldlabel">A</label>
-    <input id="outputToken" value="ETH" readonly style="font-size:28px">
-    <div style="margin:20px 0 10px">
-      <input id="swapInput" type="number" placeholder="0.0" style="width:100%; font-size:28px; background:#100d16; border:1px solid #3a2b49; border-radius:8px; padding:12px; color:#eee9f5;">
-    </div>
-    <button id="swapBtn" class="primary" style="width:100%; padding:16px; font-size:16px;">INTERCAMBIAR</button>
-    <div id="swapStatus" style="margin-top:15px; font-size:12px; color:#968ba5;"></div>
-  </div>
+<div class="pagetitle"><label>EXCHANGE MODULE</label><h1>Token <em>Swap</em></h1><p>Interfaz reservada para un intercambio descentralizado.</p></div>
+<div class="panel coming">
+<span class="ico gold">⇄</span>
+<label>INTEGRACIÓN PENDIENTE</label>
+<h2>El portal está preparado.</h2>
+<p>Esta versión todavía no cotiza precios ni ejecuta swaps. Para activar intercambios reales habría que integrar un proveedor fiable, mostrar cotizaciones y comisiones, y solicitar confirmación explícita en la wallet antes de cualquier transacción.</p>
+<div class="tags"><span>BASE</span><span>ERC-20</span><span>FIRMA DE WALLET</span></div>
+</div>
 </section>
 
 <section class="page hidden" id="page-nfts">
-  <div class="pagetitle"><label>DIGITAL COLLECTIBLES</label><h1>La cámara de <em>reliquias</em></h1><p>Colección oficial Noctrarium</p></div>
-  <div class="panel nft">
-    <div class="nftgrid" id="nftGrid"></div>
-  </div>
+<div class="pagetitle"><label>DIGITAL COLLECTIBLES</label><h1>La cámara de <em>reliquias</em></h1><p>Un espacio para futuras colecciones digitales del universo Noctra.</p></div>
+<div class="panel nft">
+<div class="nftart">◇<small>NOCTRA</small></div>
+<div><label>COLLECTION ARCHIVE</label><h2>Tu colección empieza aquí.</h2><p class="muted">Aún no hay una colección conectada. Más adelante se pueden añadir galerías NFT leyendo activos de una wallet o consultando contratos ERC-721/ERC-1155.</p></div>
+</div>
 </section>
 
 <section class="page hidden" id="page-arcade">
-  <div class="pagetitle"><label>ARCade</label><h1>Demo Arcade</h1><p>Mini juego de ejemplo.</p></div>
-  <div class="panel" style="text-align:center;padding:40px">
-    <p class="muted" style="margin:0 0 12px">Este es un área de demostración sin efectos de red real.</p>
-    <button id="play" class="primary">JUGAR</button>
-  </div>
+<div class="pagetitle"><label>SANDBOX · SIN VALOR ECONÓMICO</label><h1>Arcade <em>demo</em></h1><p>Minijuego con puntos locales. No utiliza tokens, apuestas ni premios reales.</p></div>
+<div class="arcadelayout">
+<div class="panel arcade">
+<div class="arcadetop">
+<div><label>ROUND SIMULATOR</label><h2>Elige tres runas</h2></div>
+<div class="points"><small>PUNTOS DEMO</small><b id="points">100</b></div>
+</div>
+<p class="muted">Selecciona 3 de las 10 casillas. Cada intento consume 10 puntos de demostración.</p>
+<div class="runes" id="runes"></div>
+<div class="arcadebottom"><span id="selectedcount">0/3 seleccionadas</span><button class="primary" id="play">Jugar demo ›</button></div>
+<p id="result" class="result hidden"></p>
+<button class="textbutton" id="reset">Reiniciar demo</button>
+</div>
+<aside class="panel rules">
+<span class="ico purple">♧</span>
+<h3>Solo demostración</h3>
+<p>Los puntos son temporales y solo existen mientras la página está abierta.</p>
+<ul><li>No se conecta con NOCTRA.</li><li>No se depositan activos.</li><li>No hay premios ni valor económico.</li></ul>
+</aside>
+</div>
 </section>
 
-<footer>© 2026 NOCTRARIUM • BUILT IN THE SHADOWS</footer>
-</main> <script> // Utilidades simples const $ = (sel) => document.querySelector(sel); const $$ = (sel) => Array.from(document.querySelectorAll(sel)); // Navegación entre páginas function showPage(pageId){ // Ocultar todas $$('#page-home, #page-token, #page-swap, #page-nfts, #page-arcade').forEach(p => p.classList.add('hidden')); // Mostrar la solicitada const p = document.getElementById(pageId); if(p) p.classList.remove('hidden'); // Actualizar crumb const label = pageId === 'page-home' ? 'INICIO' : pageId === 'page-token' ? 'TOKEN' : pageId === 'page-swap' ? 'SWAP' : pageId === 'page-nfts' ? 'NFT' : pageId === 'page-arcade' ? 'ARCADE' : ''; document.getElementById('crumb').textContent = label; } // Asignar navegación $$('[data-page]').forEach(btn => { btn.addEventListener('click', () => { const page = btn.getAttribute('data-page'); // Mapear a IDs de secciones const id = page === 'home' ? 'page-home' : page === 'token' ? 'page-token' : page === 'swap' ? 'page-swap' : page === 'nfts' ? 'page-nfts' : page === 'arcade' ? 'page-arcade' : 'page-home'; showPage(id); }); }); // Copiar contrato const copyBtn = $('#copy'); if(copyBtn){ copyBtn.addEventListener('click', async () => { const code = document.getElementById('contract').textContent; try{ await navigator.clipboard.writeText(code); alert('Contrato copiado al portapapeles'); }catch(e){ console.error(e); } }); } // NFTs de ejemplo const nftGrid = $('#nftGrid'); const nfts = [ {id:1, name:"Noctra Rune #001", img:"https://picsum.photos/id/1015/300/300"}, {id:2, name:"Noctra Guardian", img:"https://picsum.photos/id/201/300/300"}, {id:3, name:"Noctra Crystal Shard", img:"https://picsum.photos/id/237/300/300"} ]; function renderNFTGrid(){ nftGrid.innerHTML = ''; nfts.forEach(n => { const card = document.createElement('div'); card.className = 'nftCard'; card.innerHTML = ` <img src="${n.img}" alt="${n.name}"> <div class="nftInfo">${n.name}</div> `; nftGrid.appendChild(card); }); } renderNFTGrid(); // Swap simulado const swapBtn = $('#swapBtn'); const swapInput = $('#swapInput'); const swapStatus = $('#swapStatus'); swapBtn?.addEventListener('click', () => { // En este ejemplo no hay blockchain real; es un simulador const amount = swapInput.value || '0'; swapStatus.textContent = `Intercambio simulado: ${amount} NOCTRA → ETH`; setTimeout(() => { swapStatus.textContent = 'Swap simulado completado'; }, 800); }); // Arcade simple $('#play')?.addEventListener('click', () => { alert('Arcade demo: juego de ejemplo. ¡Diviértete!'); }); // WalletConnect placeholder (no conexión real para este ejemplo) $('#connect')?.addEventListener('click', ()
+<footer><span>© 2026 NOCTRARIUM</span><span>BUILT IN THE SHADOWS ✦</span><a id="footerlink" target="_blank" rel="noreferrer">CONTRATO ↗</a></footer>
+</main>
+<script>
+'use strict';
+const TOKEN='0xD7C0Fe9D359cd2c40F7285A8b302ED416e99F6f1';
+const TOKEN_URL=`https://basescan.org/token/${TOKEN}`;
+const BASE_ID='0x2105';
+const BASE_CHAIN_PARAMS=[{chainId:BASE_ID,chainName:'Base Mainnet',nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},rpcUrls:['https://mainnet.base.org'],blockExplorerUrls:['https://basescan.org/']}];
+let account=null, chainId=null, points=100, selected=[];
+const $=id=>document.getElementById(id);
+
+$('contract').textContent=TOKEN;
+$('tokenlink').href=TOKEN_URL;
+$('footerlink').href=TOKEN_URL;
+
+function notify(msg){$('notice').textContent=msg;$('notice').classList.remove('hidden')}
+function clearNotice(){$('notice').classList.add('hidden');$('notice').textContent=''}
+function short(addr){return addr.slice(0,6)+'…'+addr.slice(-4)}
+
+function updateWalletButton(){
+  const text=account?short(account):'♧ Conectar wallet';
+  $('connect').textContent=text;
+  $('connect').classList.toggle('connected',!!account);
+  $('tokenConnect').textContent=text;
+  $('balancehint').textContent=account
+    ?(chainId===8453?'Consultando saldo en Base…':'Cambia tu wallet a Base para consultar el saldo.')
+    :'Conecta tu wallet para consultar el saldo público.';
+  $('switchBase').classList.toggle('hidden',!account||chainId===8453);
+  $('tokenConnect').classList.toggle('hidden',!!account);
+}
+
+async function connect(){
+  clearNotice();
+  const eth=window.ethereum;
+  if(!eth){notify('No se detecta una wallet compatible. Abre esta página en un navegador con wallet EVM.');return}
+  try{
+    const accounts=await eth.request({method:'eth_requestAccounts'});
+    account=accounts[0]||null;
+    chainId=parseInt(await eth.request({method:'eth_chainId'}),16);
+    updateWalletButton();
+    await readBalance();
+  }catch(e){
+    notify(e?.message||'No se pudo conectar la wallet.');
+  }
+}
+
+async function readBalance(){
+  if(!account||chainId!==8453){$('balance').textContent='—';return}
+  try{
+    const padded=account.slice(2).toLowerCase().padStart(64,'0');
+    const data='0x70a08231'+padded; // balanceOf(address)
+    const response=await fetch('https://mainnet.base.org',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:TOKEN,data},'latest']})
+    });
+    if(!response.ok)throw Error('HTTP '+response.status);
+    const json=await response.json();
+    if(json.error)throw Error(json.error.message);
+    const raw=BigInt(json.result||'0x0');
+    const whole=raw/10n**18n;
+    const frac=(raw%10n**18n).toString().padStart(18,'0').slice(0,4).replace(/0+$/,'');
+    $('balance').textContent=whole.toLocaleString('es-ES')+(frac?','+frac:'');
+    $('balancehint').textContent='Saldo consultado mediante una llamada pública de solo lectura en Base.';
+  }catch{
+    $('balance').textContent='No disponible';
+    $('balancehint').textContent='No se pudo leer el saldo. Comprueba la conexión y el contrato.';
+  }
+}
+
+async function switchBase(){
+  const eth=window.ethereum;
+  if(!eth)return;
+  try{
+    await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:BASE_ID}]});
+  }catch(e){
+    // Si la wallet no tiene Base añadida, se ofrece añadirla (código 4902)
+    if(e?.code===4902){
+      try{await eth.request({method:'wallet_addEthereumChain',params:BASE_CHAIN_PARAMS});return}catch(e2){}
+    }
+    notify(e?.message||'No se pudo cambiar a Base.');
+  }
+}
+
+$('connect').addEventListener('click',connect);
+$('heroConnect').addEventListener('click',connect);
+$('tokenConnect').addEventListener('click',connect);
+$('switchBase').addEventListener('click',switchBase);
+
+$('copy').addEventListener('click',async()=>{
+  try{
+    await navigator.clipboard.writeText(TOKEN);
+    $('copy').textContent='✓';
+    setTimeout(()=>$('copy').textContent='▣',1400);
+  }catch{
+    notify('No se pudo copiar automáticamente. Mantén pulsada la dirección para copiarla.');
+  }
+});
+
+// Restaurar sesión previa y reaccionar a cambios de la wallet
+if(window.ethereum){
+  const eth=window.ethereum;
+  eth.request({method:'eth_accounts'})
+    .then(a=>{
+      account=a[0]||null;
+      return account?eth.request({method:'eth_chainId'}):null;
+    })
+    .then(id=>{
+      if(id!=null)chainId=parseInt(id,16);
+      updateWalletButton();
+      readBalance();
+    })
+    .catch(()=>{});
+  eth.on?.('accountsChanged',a=>{
+    account=a[0]||null;
+    updateWalletButton();
+    readBalance();
+  });
+  eth.on?.('chainChanged',id=>{
+    chainId=parseInt(id,16);
+    updateWalletButton();
+    readBalance();
+  });
+}
+
+// Navegación entre páginas
+const CRUMBS={home:'INICIO',token:'TOKEN NOCTRA',swap:'SWAP',nfts:'COLECCIÓN NFT',arcade:'ARCADE DEMO'};
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  $('page-'+name).classList.remove('hidden');
+  document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===name));
+  $('crumb').textContent=CRUMBS[name]||'';
+  $('sidebar').classList.remove('open');
+  $('scrim').classList.remove('open');
+  $('menu').setAttribute('aria-expanded','false');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',e=>{
+  if(el.tagName==='A')e.preventDefault();
+  showPage(el.dataset.page);
+}));
+
+// Menú lateral móvil
+const menu=$('menu'), sidebar=$('sidebar'), scrim=$('scrim');
+menu.addEventListener('click',()=>{
+  const isOpen=sidebar.classList.toggle('open');
+  scrim.classList.toggle('open',isOpen);
+  menu.setAttribute('aria-expanded',String(isOpen));
+});
+scrim.addEventListener('click',()=>{
+  sidebar.classList.remove('open');
+  scrim.classList.remove('open');
+  menu.setAttribute('aria-expanded','false');
+});
+
+// Arcade demo
+function renderRunes(){
+  const wrap=$('runes');
+  wrap.innerHTML='';
+  for(let n=0;n<10;n++){
+    const b=document.createElement('button');
+    b.className='runeTile'+(selected.includes(n)?' selected':'');
+    b.innerHTML=`◇<span>${String(n+1).padStart(2,'0')}</span>`;
+    b.setAttribute('aria-pressed',String(selected.includes(n)));
+    b.addEventListener('click',()=>{
+      if(selected.includes(n))selected=selected.filter(x=>x!==n);
+      else if(selected.length<3)selected.push(n);
+      renderRunes();
+    });
+    wrap.appendChild(b);
+  }
+  $('selectedcount').textContent=`${selected.length}/3 seleccionadas`;
+}
+function renderPoints(){$('points').textContent=points}
+
+$('play').addEventListener('click',()=>{
+  if(selected.length!==3){$('result').textContent='Elige exactamente 3 casillas para jugar la ronda de demostración.';$('result').classList.remove('hidden');return}
+  if(points<10){$('result').textContent='No tienes puntos demo suficientes. Reinicia la demo para volver a 100.';$('result').classList.remove('hidden');return}
+  const drawn=new Set();
+  while(drawn.size<3)drawn.add(Math.floor(Math.random()*10));
+  const hits=selected.filter(n=>drawn.has(n)).length;
+  points-=10;
+  renderPoints();
+  $('result').textContent=`Ronda demo terminada: ${hits} coincidencia${hits===1?'':'s'}. No hay premios ni valor económico.`;
+  $('result').classList.remove('hidden');
+});
+$('reset').addEventListener('click',()=>{
+  points=100;selected=[];
+  renderPoints();renderRunes();
+  $('result').textContent='Demo reiniciada. Tienes 100 puntos de demostración.';
+  $('result').classList.remove('hidden');
+});
+renderRunes();
+renderPoints();
+</script>
+</body>
+</html>
