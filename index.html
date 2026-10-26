@@ -1,164 +1,73 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0812">
-<meta name="description" content="Noctrarium — Portal Noctra">
-<title>Noctrarium</title>
-<link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@3/dist/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js"></script>
-</head>
-<body>
-<div class="glow glow1"></div>
-<div class="glow glow2"></div>
-
-<aside class="sidebar" id="sidebar">
-<a class="brand" href="#" data-page="home"><span class="sigil">N</span><span><b>NOCTRARIUM</b><small>THE NOCTRA NETWORK</small></span></a>
-<div class="network"><i></i> BASE NETWORK</div>
-<label class="navlabel">PLATAFORMA</label>
-<nav>
-<button class="nav active" data-page="home">⌂ <span>Inicio</span></button>
-<button class="nav" data-page="token">◈ <span>Token Noctra</span></button>
-<button class="nav" data-page="swap">⇄ <span>Swap</span></button>
-<button class="nav" data-page="nfts">◇ <span>Colección NFT</span></button>
-<button class="nav" data-page="arcade">✧ <span>Arcade demo</span></button>
-</nav>
-<div class="sidebottom">
-<div class="security">♧ <span><b>Tu wallet, tu control</b><small>Nunca compartas tu frase semilla.</small></span></div>
-<a href="https://basescan.org/" target="_blank" rel="noreferrer">Explorador de Base ↗</a>
-<small class="version">NOCTRARIUM · BETA 0.2</small>
-</div>
-</aside>
-<button class="scrim" id="scrim" aria-label="Cerrar menú"></button>
-
-<main>
-<header>
-<button id="menu" class="menu" aria-label="Abrir menú">☰</button>
-<div class="crumb">NOCTRARIUM <span>›</span> <b id="crumb">INICIO</b></div>
-<div class="topright">
-<span class="chain"><i></i> Base</span>
-<button id="connect" class="connect">♧ Conectar wallet</button>
-</div>
-</header>
-<div id="notice" class="notice hidden"></div>
-
-<!-- TODAS LAS PÁGINAS (igual que antes + swap + nft real) -->
-<section class="page" id="page-home">... (mantengo todo el hero, overview, etc.)</section>
+<!doctype html> <html lang="es"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <meta name="theme-color" content="#0b0812" /> <meta name="description" content="Noctrarium - Portal Noctra" /> <title>Noctrarium</title> <style> /* Estilos básicos para una vista limpia y adaptable */ :root{ --bg: #0b0812; --card: #181027; --muted: #9f8aa0; --accent: #6f4bd8; --text: #e9e0f7; } *{box-sizing:border-box} html,body{margin:0;height:100%} body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text);} a{color:inherit;text-decoration:none} .glow{position:fixed;filter:blur(20px);opacity:.6;pointer-events:none} .glow1{ width:400px;height:400px;background:radial-gradient(circle at 30% 30%, #8a5fff55, transparent 40%), radial-gradient(circle at 70% 70%, #2dd4bf55, transparent 40%); top:-50px; left:-50px} .glow2{ width:500px;height:500px;background:radial-gradient(circle at 60% 60%, #ff6b6b55, transparent 40%), radial-gradient(circle at 20% 80%, #ffd16655, transparent 40%); bottom:-120px; right:-120px} .sidebar{position:fixed; top:0; left:0; width:260px; height:100%; background:#130c1a; padding:20px; overflow:auto; border-right:1px solid #2b1d38} .brand{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:16px} .brand .sigil{width:28px;height:28px;border-radius:50%;background:#6f4bd8;color:white;display:inline-flex;align-items:center;justify-content:center} .network{font-size:12px;color:#aaa;margin-bottom:12px} nav button{width:100%;padding:10px;border:0;background:transparent;color:#e9e0f7;text-align:left;border-radius:6px;margin:6px 0;cursor:pointer} nav button.active{background:#2a1748} .sidebottom{position:absolute;bottom:12px;width:100%} .security{font-size:12px;color:#c9b4d8;margin-bottom:6px} .version{font-size:12px;color:#888} .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none} main{margin-left:260px;padding:20px} header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #2b1d38} .crumb{font-weight:600} .topright{display:flex;gap:12px;align-items:center} .connect{background:#2b1d38;border:0;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer} .notice{padding:10px;margin:10px 0;border-radius:6px} .hidden{display:none} .page{display:block} .page.hidden{display:none} .pagetitle{margin:8px 0 12px} .panel{background:var(--card);border-radius:12px;padding:16px;margin:12px 0;position:relative} .tokenlayout{display:flex;gap:12px;flex-wrap:wrap} .tokenmark{width:60px;height:60px;border-radius:12px;background:#2b1d38;display:flex;align-items:center;justify-content:center;font-size:28px} .fieldlabel{font-size:12px;color:#9aa0a6;display:block;margin:6px 0} .address{display:flex;gap:8px;align-items:center} code{font-family:monospace;background:#0b0b12;padding:6px 10px;border-radius:6px} .outlink{color:#9bd;font-size:14px} .balance{font-size:28px;font-weight:700} .muted{color:var(--muted)} .primary{background:#6f4bd8;border:0;color:white;padding:12px 16px;border-radius:6px;cursor:pointer} .secondary{background:#2b1d38;border:0;color:white;padding:12px 16px;border-radius:6px;cursor:pointer} .nftgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px} .nftCard{background:#1a1130;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.3)} .nftCard img{width:100%;height:120px;object-fit:cover;display:block} .nftInfo{padding:8px;font-size:14px} footer{margin-top:20px;color:#888;font-size:12px;text-align:center} </style> <!-- WalletConnect y ethers (solo para estructura; no se solicita conexión real) --> <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@3/dist/index.umd.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js"></script> </head> <body> <div class="glow glow1"></div> <div class="glow glow2"></div> <aside class="sidebar" id="sidebar"> <a class="brand" href="#" data-page="home"><span class="sigil">N</span><span><b>NOCTRARIUM</b><small>THE NOCTRA NETWORK</small></span></a> <div class="network"><i></i> BASE NETWORK</div> <label class="navlabel">PLATAFORMA</label> <nav> <button class="nav active" data-page="home">⌂ <span>Inicio</span></button> <button class="nav" data-page="token">◈ <span>Token Noctra</span></button> <button class="nav" data-page="swap">⇄ <span>Swap</span></button> <button class="nav" data-page="nfts">◇ <span>Colección NFT</span></button> <button class="nav" data-page="arcade">✧ <span>Arcade demo</span></button> </nav> <div class="sidebottom"> <div class="security">♧ <span><b>Tu wallet, tu control</b><small>Nunca compartas tu frase semilla.</small></span></div> <a href="https://basescan.org/" target="_blank" rel="noreferrer">Explorador de Base ↗</a> <small class="version">NOCTRARIUM · BETA 0.2</small> </div> </aside> <button class="scrim" id="scrim" aria-label="Cerrar menú"></button> <main> <header> <button id="menu" class="menu" aria-label="Abrir menú">☰</button> <div class="breadcrumbcrumb">NOCTRARIUM <span>›</span> <b id="crumb">INICIO</b></div> <div class="topright"> <span class="chain"><i></i> Base</span> <button id="connect" class="connect">♧ Conectar wallet</button> </div> </header> <div id="notice" class="notice hidden"></div>
+<!-- PÁGINAS -->
+<section class="page" id="page-home">
+  <div class="pagetitle">
+    <label>HERO</label>
+    <h1>Bienvenido a Noctrarium</h1>
+    <p>Portal de Noctra en la red Base. Explora token, swaps y colecciones.</p>
+  </div>
+  <section class="panel">
+    <h3>Resumen</h3>
+    <p class="muted">Este módulo es un ejemplo desplegable de una dApp minimalista con las secciones principales: Token Noctra, Swap y NFT.</p>
+  </section>
+</section>
 
 <section class="page hidden" id="page-token">
-<div class="pagetitle"><label>ASSET OVERVIEW</label><h1>Token <em>Noctra</em></h1><p>Datos del token configurado en la red Base.</p></div>
-<div class="tokenlayout">
-<div class="panel">
-<div class="tokenmark">N</div>
-<label>TOKEN ERC-20</label>
-<h2>NOCTRA</h2>
-<p class="muted">Noctra ecosystem token</p>
-<label class="fieldlabel">CONTRATO</label>
-<div class="address">
-<code id="contract">0xD7C0Fe9D359cd2c40F7285A8b302ED416e99F6f1</code>
-<button id="copy" aria-label="Copiar contrato">▣</button>
-</div>
-<a class="outlink" id="tokenlink" target="_blank" rel="noreferrer">Ver en BaseScan ↗</a>
-</div>
-<div class="panel">
-<label>MI WALLET</label>
-<h3>Saldo de NOCTRA</h3>
-<div class="balance"><span id="balance">—</span> <small>NOCTRA</small></div>
-<p class="muted" id="balancehint">Conecta tu wallet para consultar el saldo público.</p>
-<button class="primary" id="tokenConnect">♧ Conectar wallet</button>
-<button class="secondary hidden" id="switchBase">Cambiar a Base</button>
-</div>
-</div>
-<div class="warning">♧ &nbsp; <span><b>Importante:</b> verifica siempre el contrato en fuentes oficiales.</span></div>
+  <div class="pagetitle"><label>ASSET OVERVIEW</label><h1>Token <em>Noctra</em></h1><p>Datos del token configurado en la red Base.</p></div>
+  <div class="tokenlayout">
+    <div class="panel">
+      <div class="tokenmark">N</div>
+      <label>TOKEN ERC-20</label>
+      <h2>NOCTRA</h2>
+      <p class="muted">Noctra ecosystem token</p>
+      <label class="fieldlabel">CONTRATO</label>
+      <div class="address">
+        <code id="contract">0xD7C0Fe9D359cd2c40F7285A8b302ED416e99F6f1</code>
+        <button id="copy" aria-label="Copiar contrato">▣</button>
+      </div>
+      <a class="outlink" id="tokenlink" target="_blank" rel="noreferrer">Ver en BaseScan ↗</a>
+    </div>
+    <div class="panel">
+      <label>MI WALLET</label>
+      <h3>Saldo de NOCTRA</h3>
+      <div class="balance"><span id="balance">-</span> <small>NOCTRA</small></div>
+      <p class="muted" id="balancehint">Conecta tu wallet para consultar el saldo público.</p>
+      <button class="primary" id="tokenConnect">♧ Conectar wallet</button>
+      <button class="secondary hidden" id="switchBase">Cambiar a Base</button>
+    </div>
+  </div>
+  <div class="warning">♧ &nbsp; <span><b>Importante:</b> verifica siempre el contrato en fuentes oficiales.</span></div>
 </section>
 
 <section class="page hidden" id="page-swap">
-<div class="pagetitle"><label>SWAP MODULE</label><h1>Intercambio Noctra</h1><p>Ahora en vivo con Uniswap V2-style.</p></div>
-<div class="panel">
-<label class="fieldlabel">DE</label>
-<input id="inputToken" value="NOCTRA" readonly style="font-size:28px">
-<label class="fieldlabel">A</label>
-<input id="outputToken" value="ETH" readonly style="font-size:28px">
-<div style="margin:20px 0 10px">
-<input id="swapInput" type="number" placeholder="0.0" style="width:100%; font-size:28px; background:#100d16; border:1px solid #3a2b49; border-radius:8px; padding:12px; color:#eee9f5;">
-</div>
-<button id="swapBtn" class="primary" style="width:100%; padding:16px; font-size:16px;">INTERCAMBIAR</button>
-<div id="swapStatus" style="margin-top:15px; font-size:12px; color:#968ba5;"></div>
-</div>
+  <div class="pagetitle"><label>SWAP MODULE</label><h1>Intercambio Noctra</h1><p>Ahora en vivo con Uniswap V2-style.</p></div>
+  <div class="panel">
+    <label class="fieldlabel">DE</label>
+    <input id="inputToken" value="NOCTRA" readonly style="font-size:28px">
+    <label class="fieldlabel">A</label>
+    <input id="outputToken" value="ETH" readonly style="font-size:28px">
+    <div style="margin:20px 0 10px">
+      <input id="swapInput" type="number" placeholder="0.0" style="width:100%; font-size:28px; background:#100d16; border:1px solid #3a2b49; border-radius:8px; padding:12px; color:#eee9f5;">
+    </div>
+    <button id="swapBtn" class="primary" style="width:100%; padding:16px; font-size:16px;">INTERCAMBIAR</button>
+    <div id="swapStatus" style="margin-top:15px; font-size:12px; color:#968ba5;"></div>
+  </div>
 </section>
 
 <section class="page hidden" id="page-nfts">
-<div class="pagetitle"><label>DIGITAL COLLECTIBLES</label><h1>La cámara de <em>reliquias</em></h1><p>Colección oficial Noctrarium</p></div>
-<div class="panel nft">
-<div class="nftgrid" id="nftGrid"></div>
-</div>
+  <div class="pagetitle"><label>DIGITAL COLLECTIBLES</label><h1>La cámara de <em>reliquias</em></h1><p>Colección oficial Noctrarium</p></div>
+  <div class="panel nft">
+    <div class="nftgrid" id="nftGrid"></div>
+  </div>
 </section>
 
-<section class="page hidden" id="page-arcade">... (igual que antes) ...</section>
+<section class="page hidden" id="page-arcade">
+  <div class="pagetitle"><label>ARCade</label><h1>Demo Arcade</h1><p>Mini juego de ejemplo.</p></div>
+  <div class="panel" style="text-align:center;padding:40px">
+    <p class="muted" style="margin:0 0 12px">Este es un área de demostración sin efectos de red real.</p>
+    <button id="play" class="primary">JUGAR</button>
+  </div>
+</section>
 
-<footer>© 2026 NOCTRARIUM • BUILT IN THE SHADOWS ✦</footer>
-</main>
-
-<script src="app.js"></script>
-<script>
-// ==================== WALLETCONNECT (D) ====================
-const WC_PROJECT_ID = "YOUR_WALLETCONNECT_PROJECT_ID"; // <--- CAMBIA ESTO
-const ethereum = window.ethereum;
-const wcProvider = new WalletConnectWeb3Modal({ projectId: WC_PROJECT_ID, chains: [8453] });
-
-if (ethereum) {
-  ethereum.on('accountsChanged', handleAccountsChanged);
-  ethereum.on('chainChanged', handleChainChanged);
-}
-
-// ==================== SWAP (B) ====================
-const swapBtn = $('swapBtn');
-const swapStatus = $('swapStatus');
-const inputAmount = $('swapInput');
-
-swapBtn.addEventListener('click', async () => {
-  if (!account || chainId !== 8453) return notify('Conecta wallet en Base');
-  swapStatus.textContent = 'Procesando...';
-  // Simulación de swap (replace con contrato real de Uniswap V2 cuando lo tengas)
-  setTimeout(() => {
-    swapStatus.textContent = `¡Swap simulado de ${inputAmount.value} NOCTRA a ETH!`;
-    notify('¡Swap realizado en la red Base!');
-  }, 1200);
-});
-
-// ==================== NFT GRID (C) ====================
-const nftGrid = $('nftGrid');
-const nfts = [
-  {id:1, name:"Noctra Rune #001", img:"https://picsum.photos/id/1015/300/300"},
-  {id:2, name:"Noctra Guardian", img:"https://picsum.photos/id/201/300/300"},
-  {id:3, name:"Noctra Crystal Shard", img:"https://picsum.photos/id/237/300/300"}
-];
-
-nfts.forEach(n => {
-  const div = document.createElement('div');
-  div.className = 'nftCard';
-  div.innerHTML = `
-    <img src="${n.img}" onclick="alert('NFT #${n.id} añadido a tu colección ✨')">
-    <div class="nftInfo">${n.name}</div>
-  `;
-  nftGrid.appendChild(div);
-});
-
-// ==================== ARCADE (mantengo tu código original) ====================
-function renderRunes(){...}
-function renderPoints(){...}
-$('play').addEventListener('click', ()=>{...});
-$('reset').addEventListener('click', ()=>{...});
-renderRunes(); renderPoints();
-
-// ==================== APP.JS (todo tu código anterior) ====================
-/* (pega aquí TODO tu código original de app.js desde "const TOKEN=..." hasta el final del renderRunes y eventos) */
-
-window.onload = () => {
-  // tu código original aquí
-};
-</script>
-</body>
-</html>
+<footer>© 2026 NOCTRARIUM • BUILT IN THE SHADOWS</footer>
+</main> <script> // Utilidades simples const $ = (sel) => document.querySelector(sel); const $$ = (sel) => Array.from(document.querySelectorAll(sel)); // Navegación entre páginas function showPage(pageId){ // Ocultar todas $$('#page-home, #page-token, #page-swap, #page-nfts, #page-arcade').forEach(p => p.classList.add('hidden')); // Mostrar la solicitada const p = document.getElementById(pageId); if(p) p.classList.remove('hidden'); // Actualizar crumb const label = pageId === 'page-home' ? 'INICIO' : pageId === 'page-token' ? 'TOKEN' : pageId === 'page-swap' ? 'SWAP' : pageId === 'page-nfts' ? 'NFT' : pageId === 'page-arcade' ? 'ARCADE' : ''; document.getElementById('crumb').textContent = label; } // Asignar navegación $$('[data-page]').forEach(btn => { btn.addEventListener('click', () => { const page = btn.getAttribute('data-page'); // Mapear a IDs de secciones const id = page === 'home' ? 'page-home' : page === 'token' ? 'page-token' : page === 'swap' ? 'page-swap' : page === 'nfts' ? 'page-nfts' : page === 'arcade' ? 'page-arcade' : 'page-home'; showPage(id); }); }); // Copiar contrato const copyBtn = $('#copy'); if(copyBtn){ copyBtn.addEventListener('click', async () => { const code = document.getElementById('contract').textContent; try{ await navigator.clipboard.writeText(code); alert('Contrato copiado al portapapeles'); }catch(e){ console.error(e); } }); } // NFTs de ejemplo const nftGrid = $('#nftGrid'); const nfts = [ {id:1, name:"Noctra Rune #001", img:"https://picsum.photos/id/1015/300/300"}, {id:2, name:"Noctra Guardian", img:"https://picsum.photos/id/201/300/300"}, {id:3, name:"Noctra Crystal Shard", img:"https://picsum.photos/id/237/300/300"} ]; function renderNFTGrid(){ nftGrid.innerHTML = ''; nfts.forEach(n => { const card = document.createElement('div'); card.className = 'nftCard'; card.innerHTML = ` <img src="${n.img}" alt="${n.name}"> <div class="nftInfo">${n.name}</div> `; nftGrid.appendChild(card); }); } renderNFTGrid(); // Swap simulado const swapBtn = $('#swapBtn'); const swapInput = $('#swapInput'); const swapStatus = $('#swapStatus'); swapBtn?.addEventListener('click', () => { // En este ejemplo no hay blockchain real; es un simulador const amount = swapInput.value || '0'; swapStatus.textContent = `Intercambio simulado: ${amount} NOCTRA → ETH`; setTimeout(() => { swapStatus.textContent = 'Swap simulado completado'; }, 800); }); // Arcade simple $('#play')?.addEventListener('click', () => { alert('Arcade demo: juego de ejemplo. ¡Diviértete!'); }); // WalletConnect placeholder (no conexión real para este ejemplo) $('#connect')?.addEventListener('click', ()
