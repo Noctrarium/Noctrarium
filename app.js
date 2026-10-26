@@ -16,7 +16,21 @@ $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.write
 if(window.ethereum){window.ethereum.request({method:'eth_accounts'}).then(a=>{account=a[0]||null;return window.ethereum.request({method:'eth_chainId'})}).then(id=>{chainId=parseInt(id,16);updateWalletButton();readBalance()}).catch(()=>{});window.ethereum.on?.('accountsChanged',a=>{account=a[0]||null;updateWalletButton();readBalance()});window.ethereum.on?.('chainChanged',id=>{chainId=parseInt(id,16);updateWalletButton();readBalance()})}
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));$('page-'+name).classList.remove('hidden');document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===name));$('crumb').textContent=({home:'INICIO',token:'TOKEN NOCTRA',swap:'SWAP',nfts:'COLECCIÓN NFT',arcade:'ARCADE DEMO'})[name];$('sidebar').classList.remove('open');$('scrim').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>showPage(el.dataset.page)));
-$('menu').addEventListener('click',()=>{$('sidebar').classList.toggle('open');$('scrim').classList.toggle('open')});$('scrim').addEventListener('click',()=>{$('sidebar').classList.remove('open');$('scrim').classList.remove('open')});
+const menu = $('menu');
+const sidebar = $('sidebar');
+const scrim = $('scrim');
+
+menu.addEventListener('click', () => {
+  const isOpen = sidebar.classList.toggle('open');
+  scrim.classList.toggle('open', isOpen);
+  menu.setAttribute('aria-expanded', String(isOpen));
+});
+
+scrim.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  scrim.classList.remove('open');
+  menu.setAttribute('aria-expanded', 'false');
+});
 function renderRunes(){const wrap=$('runes');wrap.innerHTML='';for(let n=0;n<10;n++){const b=document.createElement('button');b.className='runeTile'+(selected.includes(n)?' selected':'');b.innerHTML=`◇<span>${String(n+1).padStart(2,'0')}</span>`;b.setAttribute('aria-pressed',String(selected.includes(n)));b.addEventListener('click',()=>{if(selected.includes(n))selected=selected.filter(x=>x!==n);else if(selected.length<3)selected.push(n);renderRunes()});wrap.appendChild(b)}$('selectedcount').textContent=`${selected.length}/3 seleccionadas`}
 function renderPoints(){$('points').textContent=points}
 $('play').addEventListener('click',()=>{if(selected.length!==3){$('result').textContent='Elige exactamente 3 casillas para jugar la ronda de demostración.';$('result').classList.remove('hidden');return}if(points<10){$('result').textContent='No tienes puntos demo suficientes. Reinicia la demo para volver a 100.';$('result').classList.remove('hidden');return}const drawn=new Set();while(drawn.size<3)drawn.add(Math.floor(Math.random()*10));const hits=selected.filter(n=>drawn.has(n)).length;points-=10;renderPoints();$('result').textContent=`Ronda demo terminada: ${hits} coincidencia${hits===1?'':'s'}. No hay premios ni valor económico.`;$('result').classList.remove('hidden')});$('reset').addEventListener('click',()=>{points=100;selected=[];renderPoints();renderRunes();$('result').textContent='Demo reiniciada. Tienes 100 puntos de demostración.';$('result').classList.remove('hidden')});renderRunes();renderPoints();
